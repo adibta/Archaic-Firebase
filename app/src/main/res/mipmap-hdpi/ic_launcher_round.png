@@ -1,0 +1,96 @@
+package id.go.dprd_katingan.e_lapor.data.database;
+
+import androidx.room.DatabaseConfiguration;
+import androidx.room.InvalidationTracker;
+import androidx.room.RoomOpenHelper;
+import androidx.room.RoomOpenHelper.Delegate;
+import androidx.room.util.DBUtil;
+import androidx.room.util.TableInfo;
+import androidx.room.util.TableInfo.Column;
+import androidx.room.util.TableInfo.ForeignKey;
+import androidx.room.util.TableInfo.Index;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback;
+import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
+import java.lang.IllegalStateException;
+import java.lang.Override;
+import java.lang.String;
+import java.lang.SuppressWarnings;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+@SuppressWarnings("unchecked")
+public final class AppDatabase_Impl extends AppDatabase {
+  private volatile UserDao _userDao;
+
+  private volatile ReportDao _reportDao;
+
+  @Override
+  protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration configuration) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(configuration, new RoomOpenHelper.Delegate(1) {
+      @Override
+      public void createAllTables(SupportSQLiteDatabase _db) {
+        _db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`id` TEXT NOT NULL, `auth_id` TEXT NOT NULL, `username` TEXT NOT NULL, `fullname` TEXT NOT NULL, `email` TEXT NOT NULL, `biodata` TEXT, `foto_profil` TEXT, `jenis_kelamin` INTEGER NOT NULL, `no_telepon` TEXT NOT NULL, PRIMARY KEY(`id`))");
+        _db.execSQL("CREATE TABLE IF NOT EXISTS `reports` (`id` TEXT NOT NULL, `user_id` TEXT NOT NULL, `content` TEXT NOT NULL, `image_link` TEXT NOT NULL, `category` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `geo_location` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `profileUrl` TEXT, `profileName` TEXT, PRIMARY KEY(`id`))");
+        _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
+        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7d6cbce523856be0e4f26a5e17275856\")");
+      }
+
+      @Override
+      public void dropAllTables(SupportSQLiteDatabase _db) {
+        _db.execSQL("DROP TABLE IF EXISTS `users`");
+        _db.execSQL("DROP TABLE IF EXISTS `reports`");
+      }
+
+      @Override
+      protected void onCreate(SupportSQLiteDatabase _db) {
+        if (mCallbacks != null) {
+          for (int _i = 0, _size = mCallbacks.size(); _i < _size; _i++) {
+            mCallbacks.get(_i).onCreate(_db);
+          }
+        }
+      }
+
+      @Override
+      public void onOpen(SupportSQLiteDatabase _db) {
+        mDatabase = _db;
+        internalInitInvalidationTracker(_db);
+        if (mCallbacks != null) {
+          for (int _i = 0, _size = mCallbacks.size(); _i < _size; _i++) {
+            mCallbacks.get(_i).onOpen(_db);
+          }
+        }
+      }
+
+      @Override
+      public void onPreMigrate(SupportSQLiteDatabase _db) {
+        DBUtil.dropFtsSyncTriggers(_db);
+      }
+
+      @Override
+      public void onPostMigrate(SupportSQLiteDatabase _db) {
+      }
+
+      @Override
+      protected void validateMigration(SupportSQLiteDatabase _db) {
+        final HashMap<String, TableInfo.Column> _columnsUsers = new HashMap<String, TableInfo.Column>(9);
+        _columnsUsers.put("id", new TableInfo.Column("id", "TEXT", true, 1));
+        _columnsUsers.put("auth_id", new TableInfo.Column("auth_id", "TEXT", true, 0));
+        _columnsUsers.put("username", new TableInfo.Column("username", "TEXT", true, 0));
+        _columnsUsers.put("fullname", new TableInfo.Column("fullname", "TEXT", true, 0));
+        _columnsUsers.put("email", new TableInfo.Column("email", "TEXT", true, 0));
+        _columnsUsers.put("biodata", new TableInfo.Column("biodata", "TEXT", false, 0));
+        _columnsUsers.put("foto_profil", new TableInfo.Column("foto_profil", "TEXT", false, 0));
+        _columnsUsers.put("jenis_kelamin", new TableInfo.Column("jenis_kelamin", "INTEGER", true, 0));
+        _columnsUsers.put("no_telepon", new TableInfo.Column("no_telepon", "TEXT", true, 0));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysUsers = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesUsers = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoUsers = new TableInfo("users", _columnsUsers, _foreignKeysUsers, _indicesUsers);
+        final TableInfo _existingUsers = TableInfo.read(_db, "users");
+        if (! _infoUsers.equals(_existingUsers)) {
+          throw new IllegalStateException("Migration didn't properly handle users(id.go.dprd_katingan.e_lapor.data.database.User).\n"
+                  + " Expected:\n" + _infoUsers + "\n"
+                  + " Found:\n" + _existingUsers);
+      
