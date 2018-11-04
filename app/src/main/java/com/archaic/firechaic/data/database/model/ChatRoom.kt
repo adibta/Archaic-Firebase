@@ -14,9 +14,7 @@ data class ChatRoom(
     var name: String,
     @ColumnInfo(name = "profile_url") var profileUrl: String,
     @ColumnInfo(name = "last_message_id") var lastMessageId: String,
-    @ColumnInfo(name = "created_at") val createdAt: Long,
-    var timestamp: Long,
-    var body: String
+    @ColumnInfo(name = "created_at") val createdAt: Long
 ) {
     override fun toString(): String {
         return name
