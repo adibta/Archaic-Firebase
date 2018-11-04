@@ -9,7 +9,7 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.archaic.archaic_firebase"
+        applicationId "com.archaic.firechaic"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1

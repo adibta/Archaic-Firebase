@@ -1,4 +1,4 @@
-package com.archaic.archaic_firebase
+package com.archaic.firechaic
 
 import org.junit.Test
 

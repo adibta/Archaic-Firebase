@@ -1,4 +1,4 @@
-package com.archaic.archaic_firebase
+package com.archaic.firechaic
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
