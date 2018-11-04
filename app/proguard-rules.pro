@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep models so Gson and Firebase can find their names
+-keepclassmembers class com.archaic.firechaic.data.database.model.** {
+    *;
+}
