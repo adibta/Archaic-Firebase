@@ -20,7 +20,13 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-keepattributes Signature
+
 # Keep models so Gson and Firebase can find their names
 -keepclassmembers class com.archaic.firechaic.data.database.model.** {
+    *;
+}
+
+-keepclassmembers class com.archaic.firechaic.data.firebase.model.** {
     *;
 }
