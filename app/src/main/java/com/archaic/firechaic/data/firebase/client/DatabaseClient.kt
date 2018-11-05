@@ -22,7 +22,7 @@ object DatabaseClient {
     @Volatile
     private var instance: FirebaseDatabase? = null
 
-    fun getInstance(): FirebaseDatabase {
+    private fun getInstance(): FirebaseDatabase {
         return instance ?: synchronized(this) {
             instance ?: FirebaseDatabase.getInstance()
         }
