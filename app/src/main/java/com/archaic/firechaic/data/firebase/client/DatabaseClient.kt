@@ -3,10 +3,7 @@ package com.archaic.firechaic.data.firebase.client
 import android.util.Log
 import com.archaic.firechaic.data.database.model.ChatRoom
 import com.archaic.firechaic.data.database.model.User
-import com.archaic.firechaic.data.firebase.ModelAdapter
-import com.archaic.firechaic.data.firebase.REF_CHATROOM
-import com.archaic.firechaic.data.firebase.REF_MESSAGE_LOG
-import com.archaic.firechaic.data.firebase.REF_USER
+import com.archaic.firechaic.data.firebase.*
 import com.archaic.firechaic.data.firebase.callback.LoadItemCallback
 import com.archaic.firechaic.data.firebase.callback.LoadMessageCallback
 import com.archaic.firechaic.data.firebase.model.FireChatRoom
@@ -69,6 +66,28 @@ object DatabaseClient {
         })
     }
 
+    private fun loadUserChatRoomId(userId: String, loadItemCallback: LoadItemCallback<List<String>>) {
+        val query: Query = getInstance().reference.child(REF_USER_CHATROOM).child(userId)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(TAG, p0.message)
+                loadItemCallback.onFailed()
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                val chatRoomIdList: MutableList<String> = mutableListOf()
+                for (childSnapshot in p0.children) {
+                    val chatRoomId = childSnapshot.key
+                    if (chatRoomId != null) {
+                        chatRoomIdList.add(chatRoomId)
+                    }
+                }
+                if (chatRoomIdList.size > 0) loadItemCallback.onLoaded(chatRoomIdList)
+                else loadItemCallback.onFailed()
+            }
+        })
+    }
+
     fun loadSingleChatRoom(chatRoomId: String, loadItemCallback: LoadItemCallback<ChatRoom>) {
         val query: Query = getInstance().reference.child(REF_CHATROOM).child(chatRoomId)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -83,6 +102,48 @@ object DatabaseClient {
                     val chatRoom = ModelAdapter.chatRoomFromFireChatRoom(fireChatRoom)
                     loadItemCallback.onLoaded(chatRoom)
                 } else loadItemCallback.onFailed()
+            }
+        })
+    }
+
+    private fun loadMultipleChatRoom(counter: Int, chatRoomIdList: List<String>, chatRoomList: MutableList<ChatRoom>,
+                                     loadItemCallback: LoadItemCallback<List<ChatRoom>>) {
+        loadSingleChatRoom(chatRoomIdList[counter], object : LoadItemCallback<ChatRoom> {
+            override fun onLoaded(item: ChatRoom) {
+                chatRoomList.add(item)
+                if (counter >= chatRoomIdList.size) {
+                    if (chatRoomList.size > 0) loadItemCallback.onLoaded(chatRoomList)
+                    else loadItemCallback.onFailed()
+                } else loadMultipleChatRoom(counter + 1, chatRoomIdList, chatRoomList, loadItemCallback)
+            }
+
+            override fun onFailed() {
+                if (counter >= chatRoomIdList.size) {
+                    if (chatRoomList.size > 0) loadItemCallback.onLoaded(chatRoomList)
+                    else loadItemCallback.onFailed()
+                } else loadMultipleChatRoom(counter + 1, chatRoomIdList, chatRoomList, loadItemCallback)
+            }
+
+        })
+    }
+
+    fun loadUserChatroom(userId: String, loadItemCallback: LoadItemCallback<List<ChatRoom>>) {
+        loadUserChatRoomId(userId, object : LoadItemCallback<List<String>> {
+            override fun onLoaded(item: List<String>) {
+                loadMultipleChatRoom(0, item, mutableListOf(),
+                    object : LoadItemCallback<List<ChatRoom>> {
+                        override fun onLoaded(item: List<ChatRoom>) {
+                            loadItemCallback.onLoaded(item)
+                        }
+
+                        override fun onFailed() {
+                            loadItemCallback.onFailed()
+                        }
+                    })
+            }
+
+            override fun onFailed() {
+                loadItemCallback.onFailed()
             }
         })
     }
