@@ -28,7 +28,7 @@ object DatabaseClient {
         }
     }
 
-    fun loadUser(userId: String, loadItemCallback: LoadItemCallback<User>) {
+    fun loadSingleUser(userId: String, loadItemCallback: LoadItemCallback<User>) {
         val query: Query = getInstance()
             .reference.child(REF_USER).child(userId)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -47,7 +47,7 @@ object DatabaseClient {
         })
     }
 
-    fun loadChatRoom(chatRoomId: String, loadItemCallback: LoadItemCallback<ChatRoom>) {
+    fun loadSingleChatRoom(chatRoomId: String, loadItemCallback: LoadItemCallback<ChatRoom>) {
         val query: Query = getInstance()
             .reference.child(REF_CHATROOM).child(chatRoomId)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -66,7 +66,8 @@ object DatabaseClient {
         })
     }
 
-    fun loadMessage(userId: String, messageId: String, chatRoomId: String, loadMessageCallback: LoadMessageCallback) {
+    fun loadSingleMessage(messageId: String, myUserId: String, chatRoomId: String,
+                          loadMessageCallback: LoadMessageCallback) {
         val query: Query = getInstance()
             .reference.child(REF_MESSAGE_LOG).child(chatRoomId).child(messageId)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -82,7 +83,7 @@ object DatabaseClient {
                     if (action == FireMessage.FireMessageAction.DELETE) {
                         loadMessageCallback.onInterrupt(action, fireMessage.targetId!!)
                     } else {
-                        val message = ModelAdapter.messageFromFireMessage(userId, chatRoomId, fireMessage)
+                        val message = ModelAdapter.messageFromFireMessage(myUserId, chatRoomId, fireMessage)
                         loadMessageCallback.onLoaded(message)
                     }
                 } else loadMessageCallback.onFailed()
