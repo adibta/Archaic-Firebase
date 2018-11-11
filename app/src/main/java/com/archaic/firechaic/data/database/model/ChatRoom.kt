@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "chat_rooms",
-    indices = [Index(value = ["timestamp"])]
+    indices = [Index(value = ["last_message_id"])]
 )
 data class ChatRoom(
     @PrimaryKey val id: String,

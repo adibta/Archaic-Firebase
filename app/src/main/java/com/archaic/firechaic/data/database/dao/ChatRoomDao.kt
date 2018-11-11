@@ -7,10 +7,10 @@ import com.archaic.firechaic.data.database.model.ChatRoom
 @Dao
 interface ChatRoomDao {
 
-    @Query("SELECT * FROM chat_rooms ORDER BY timestamp DESC")
+    @Query("SELECT * FROM chat_rooms ORDER BY last_message_id DESC")
     fun getAllPaged(): DataSource.Factory<Int, ChatRoom>
 
-    @Query("SELECT * FROM chat_rooms ORDER BY timestamp DESC")
+    @Query("SELECT * FROM chat_rooms ORDER BY last_message_id DESC")
     fun getAll(): List<ChatRoom>
 
     @Query("SELECT * FROM chat_rooms WHERE id = :id LIMIT 1")
