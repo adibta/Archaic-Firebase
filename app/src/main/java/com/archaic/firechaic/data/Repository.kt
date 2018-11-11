@@ -1,5 +1,6 @@
 package com.archaic.firechaic.data
 
+import android.util.Log
 import androidx.paging.DataSource
 import com.archaic.firechaic.data.database.dao.ChatRoomDao
 import com.archaic.firechaic.data.database.dao.MessageDao
@@ -7,12 +8,59 @@ import com.archaic.firechaic.data.database.dao.UserDao
 import com.archaic.firechaic.data.database.model.ChatRoom
 import com.archaic.firechaic.data.database.model.Message
 import com.archaic.firechaic.data.database.model.User
+import com.archaic.firechaic.data.firebase.callback.LoadItemCallback
+import com.archaic.firechaic.data.firebase.callback.LoadMessageCallback
+import com.archaic.firechaic.data.firebase.client.DatabaseClient
+import com.archaic.firechaic.data.firebase.model.FireMessage
 
 class Repository private constructor(
     private val userDao: UserDao,
     private val chatRoomDao: ChatRoomDao,
     private val messageDao: MessageDao
 ) {
+
+    fun loadUserChatRoom(userId: String) {
+        DatabaseClient.loadUserChatroom(userId, object : LoadItemCallback<List<ChatRoom>> {
+            override fun onLoaded(item: List<ChatRoom>) {
+                insertChatRooms(item)
+            }
+
+            override fun onFailed() {
+                Log.d(TAG, "LoadUserChatRoom: Failed")
+            }
+        })
+    }
+
+    fun loadUser(userId: String) {
+        DatabaseClient.loadSingleUser(userId, object : LoadItemCallback<User> {
+            override fun onLoaded(item: User) {
+                insertUser(item)
+            }
+
+            override fun onFailed() {
+                Log.d(TAG, "LoadUser: Failed")
+            }
+        })
+    }
+
+    fun loadMessages(userId: String, chatRoomId: String) {
+        DatabaseClient.loadAllMessage(userId, chatRoomId, object : LoadMessageCallback {
+            override fun onLoaded(message: Message) {
+                messageDao.insertMessage(message)
+            }
+
+            override fun onInterrupt(action: FireMessage.FireMessageAction, messageId: String) {
+                if (action == FireMessage.FireMessageAction.DELETE) {
+                    messageDao.deleteMessage(messageDao.getMessage(messageId))
+                }
+            }
+
+            override fun onFailed() {
+                Log.d(TAG, "LoadMessages: Failed")
+            }
+
+        })
+    }
 
     fun getChatRooms(): List<ChatRoom> {
         return chatRoomDao.getAll()
